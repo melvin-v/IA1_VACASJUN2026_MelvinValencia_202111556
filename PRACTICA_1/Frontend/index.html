@@ -535,7 +535,7 @@ const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
-    const API = 'http://localhost:8000/api';
+    const API = window.location.hostname === 'localhost' && window.location.port === '5500' ? 'http://localhost:8000/api' : '/api';
 
     // ---- Estado global ----
     const vista       = ref('corta');

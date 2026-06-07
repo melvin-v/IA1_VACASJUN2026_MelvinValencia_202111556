@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    container_name: API
+    ports:
+      - "8000:8000"          
+    volumes:
+      - ./prolog:/app/prolog:ro
+    environment:
+      - PYTHONUNBUFFERED=1   
+      - PROLOG_FILE=/app/prolog/rutas.pl
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - rutas_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rutas_frontend
+    ports:
+      - "80:80"           
+    depends_on:
+      backend:
+        condition: service_healthy   
+    restart: unless-stopped
+    networks:
+      - rutas_net
+
+networks:
+  rutas_net:
+    driver: bridge
