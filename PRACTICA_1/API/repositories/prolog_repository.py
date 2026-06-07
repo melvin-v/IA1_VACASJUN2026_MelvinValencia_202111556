@@ -4,8 +4,7 @@ from pyswip import Prolog
 from typing import List, Optional, Tuple
 
 
-_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_PROLOG_FILE = os.path.join(_BASE_DIR, "../prolog", "rutas.pl")
+_PROLOG_FILE = os.environ.get("PROLOG_FILE", "/app/prolog/rutas.pl")
 
 
 class PrologRepository:
