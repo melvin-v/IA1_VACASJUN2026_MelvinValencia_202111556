@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rutas Guatemala - IA1</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f5f4f0;
+      --surface:  #ffffff;
+      --border:   rgba(0,0,0,0.10);
+      --border2:  rgba(0,0,0,0.18);
+      --text:     #1a1a18;
+      --muted:    #6b6b66;
+      --hint:     #9e9d98;
+      --blue-bg:  #e6f1fb;
+      --blue-txt: #0c447c;
+      --blue-brd: #85b7eb;
+      --green-bg: #eaf3de;
+      --green-txt:#27500a;
+      --green-brd:#97c459;
+      --red-bg:   #fcebeb;
+      --red-txt:  #791f1f;
+      --red-brd:  #f09595;
+      --teal-bg:  #e1f5ee;
+      --teal-txt: #085041;
+      --teal-brd: #5dcaa5;
+      --radius:   10px;
+      --radius-sm:6px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:       #1c1c1a;
+        --surface:  #252523;
+        --border:   rgba(255,255,255,0.10);
+        --border2:  rgba(255,255,255,0.18);
+        --text:     #e8e6de;
+        --muted:    #9e9d98;
+        --hint:     #6b6b66;
+        --blue-bg:  #0c447c;
+        --blue-txt: #b5d4f4;
+        --blue-brd: #185fa5;
+        --green-bg: #27500a;
+        --green-txt:#c0dd97;
+        --green-brd:#3b6d11;
+        --red-bg:   #791f1f;
+        --red-txt:  #f7c1c1;
+        --red-brd:  #a32d2d;
+        --teal-bg:  #085041;
+        --teal-txt: #9fe1cb;
+        --teal-brd: #0f6e56;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ---- Navbar ---- */
+    nav {
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 52px;
+    }
+    .nav-logo {
+      font-weight: 600;
+      font-size: 15px;
+      margin-right: 16px;
+      color: var(--text);
+    }
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .nav-btn:hover { background: var(--bg); color: var(--text); }
+    .nav-btn.active {
+      background: var(--blue-bg);
+      color: var(--blue-txt);
+      font-weight: 500;
+    }
+
+    /* ---- Layout ---- */
+    main { max-width: 760px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ---- Cards ---- */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    /* ---- Form elements ---- */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; color: var(--hint); font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+    select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select:focus, input:focus { outline: 2px solid var(--blue-brd); outline-offset: 1px; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+    /* ---- Buttons ---- */
+    .btn {
+      width: 100%;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-primary { background: var(--blue-bg); color: var(--blue-txt); border: 0.5px solid var(--blue-brd); }
+    .btn-success { background: var(--green-bg); color: var(--green-txt); border: 0.5px solid var(--green-brd); }
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 12px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border2);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s;
+      width: auto;
+    }
+    .btn-sm:hover { background: var(--bg); color: var(--text); }
+
+    /* ---- Resultados ruta corta ---- */
+    .result-box {
+      border: 0.5px solid var(--green-brd);
+      background: var(--green-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .result-label { font-size: 11px; font-weight: 600; color: var(--green-txt); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .chip {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      color: var(--text);
+      text-transform: capitalize;
+    }
+    .chip.origen { border-color: var(--blue-brd); background: var(--blue-bg); color: var(--blue-txt); }
+    .chip.destino { border-color: var(--teal-brd); background: var(--teal-bg); color: var(--teal-txt); }
+    .arrow { color: var(--hint); font-size: 13px; }
+    .dist-pill {
+      margin-left: auto;
+      background: var(--blue-bg);
+      color: var(--blue-txt);
+      border: 0.5px solid var(--blue-brd);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .result-meta { font-size: 12px; color: var(--green-txt); margin-top: 10px; opacity: .8; }
+
+    /* ---- Tabla de rutas ---- */
+    .rutas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .rutas-count { font-size: 13px; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: var(--hint); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 6px 10px; border-bottom: 0.5px solid var(--border); }
+    td { padding: 10px; border-bottom: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .rank-1 { background: var(--blue-bg); color: var(--blue-txt); }
+    .rank-n { background: var(--bg); color: var(--hint); }
+    .km-badge {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .camino-text { color: var(--muted); font-size: 12px; text-transform: capitalize; }
+
+    /* ---- Alertas ---- */
+    .alert {
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .alert-error { background: var(--red-bg); color: var(--red-txt); border: 0.5px solid var(--red-brd); }
+    .alert-success { background: var(--green-bg); color: var(--green-txt); border: 0.5px solid var(--green-brd); }
+    .alert-info { background: var(--blue-bg); color: var(--blue-txt); border: 0.5px solid var(--blue-brd); }
+
+    /* ---- Loader ---- */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--blue-txt);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- Paginacion rutas ---- */
+    .pag-row { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+
+    /* ---- Divider ---- */
+    hr { border: none; border-top: 0.5px solid var(--border); margin: 18px 0; }
+
+    /* ---- Empty state ---- */
+    .empty { text-align: center; padding: 32px; color: var(--hint); font-size: 14px; }
+
+    /* ---- select arrow custom ---- */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--hint);
+      pointer-events: none;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav>
+    <span class="nav-logo">🗺 Rutas Guatemala</span>
+    <button class="nav-btn" :class="{active: vista==='corta'}"   @click="vista='corta'">Ruta corta</button>
+    <button class="nav-btn" :class="{active: vista==='todas'}"   @click="vista='todas'">Todas las rutas</button>
+    <button class="nav-btn" :class="{active: vista==='admin'}"   @click="vista='admin'">Administrar</button>
+  </nav>
+
+  <main>
+
+    <!-- ============================================================
+         VISTA 1: Ruta mas corta
+    ============================================================ -->
+    <div v-if="vista === 'corta'">
+      <div class="card">
+        <div class="card-title">Buscar ruta mas corta</div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Origen</label>
+            <div class="select-wrap">
+              <select v-model="corta.origen">
+                <option value="">Selecciona origen</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Destino</label>
+            <div class="select-wrap">
+              <select v-model="corta.destino">
+                <option value="">Selecciona destino</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" @click="buscarCorta" :disabled="cargandoCorta || !corta.origen || !corta.destino">
+            <span v-if="cargandoCorta"><span class="spinner"></span>Buscando...</span>
+            <span v-else>Buscar ruta mas corta</span>
+          </button>
+          <button class="btn-sm" @click="limpiarCorta">Limpiar</button>
+        </div>
+
+        <!-- Error -->
+        <div v-if="corta.error" class="alert alert-error">{{ corta.error }}</div>
+
+        <!-- Resultado -->
+        <div v-if="corta.resultado" class="result-box">
+          <div class="result-label">Ruta optima encontrada</div>
+          <div class="chip-row">
+            <template v-for="(ciudad, i) in corta.resultado.ruta.camino" :key="i">
+              <span class="chip" :class="{ origen: i===0, destino: i===corta.resultado.ruta.camino.length-1 }">
+                {{ formatear(ciudad) }}
+              </span>
+              <span v-if="i < corta.resultado.ruta.camino.length - 1" class="arrow">→</span>
+            </template>
+            <span class="dist-pill">{{ corta.resultado.ruta.distancia_km }} km</span>
+          </div>
+          <div class="result-meta">
+            {{ corta.resultado.ruta.num_paradas }} paradas · Ruta mas eficiente entre {{ formatear(corta.resultado.origen) }} y {{ formatear(corta.resultado.destino) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats rapidas si hay resultado -->
+      <div v-if="corta.resultado" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="card" style="text-align:center;padding:14px;">
+          <div style="font-size:22px;font-weight:600;color:var(--blue-txt);">{{ corta.resultado.ruta.distancia_km }}</div>
+          <div style="font-size:12px;color:var(--hint);margin-top:2px;">km totales</div>
+        </div>
+        <div class="card" style="text-align:center;padding:14px;">
+          <div style="font-size:22px;font-weight:600;color:var(--blue-txt);">{{ corta.resultado.ruta.num_paradas }}</div>
+          <div style="font-size:12px;color:var(--hint);margin-top:2px;">paradas</div>
+        </div>
+        <div class="card" style="text-align:center;padding:14px;">
+          <div style="font-size:22px;font-weight:600;color:var(--blue-txt);">{{ Math.round(corta.resultado.ruta.distancia_km / 80) }}h</div>
+          <div style="font-size:12px;color:var(--hint);margin-top:2px;">aprox. viaje</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         VISTA 2: Todas las rutas
+    ============================================================ -->
+    <div v-if="vista === 'todas'">
+      <div class="card">
+        <div class="card-title">Ver todas las rutas posibles</div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Origen</label>
+            <div class="select-wrap">
+              <select v-model="todas.origen">
+                <option value="">Selecciona origen</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Destino</label>
+            <div class="select-wrap">
+              <select v-model="todas.destino">
+                <option value="">Selecciona destino</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" @click="buscarTodas" :disabled="cargandoTodas || !todas.origen || !todas.destino">
+            <span v-if="cargandoTodas"><span class="spinner"></span>Calculando...</span>
+            <span v-else>Ver todas las rutas</span>
+          </button>
+          <button class="btn-sm" @click="limpiarTodas">Limpiar</button>
+        </div>
+
+        <div v-if="todas.error" class="alert alert-error">{{ todas.error }}</div>
+      </div>
+
+      <!-- Tabla de resultados -->
+      <div v-if="todas.resultado" class="card">
+        <div class="rutas-header">
+          <div class="card-title" style="margin-bottom:0;">
+            Resultados
+          </div>
+          <span class="rutas-count">{{ todas.resultado.total_rutas }} rutas · ordenadas por distancia</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Camino</th>
+              <th style="text-align:right;width:90px">Distancia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ruta, i) in rutasPaginadas" :key="i">
+              <td>
+                <span class="rank-badge" :class="i + (pagina-1)*porPagina === 0 ? 'rank-1' : 'rank-n'">
+                  {{ i + (pagina-1)*porPagina + 1 }}
+                </span>
+              </td>
+              <td>
+                <span class="camino-text">
+                  {{ ruta.camino.map(c => formatear(c)).join(' → ') }}
+                </span>
+              </td>
+              <td style="text-align:right">
+                <span class="km-badge">{{ ruta.distancia_km }} km</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Paginacion -->
+        <div class="pag-row" v-if="totalPaginas > 1">
+          <button class="btn-sm" @click="pagina--" :disabled="pagina===1">‹ Anterior</button>
+          <span style="font-size:13px;color:var(--muted);padding:5px 8px;">{{ pagina }} / {{ totalPaginas }}</span>
+          <button class="btn-sm" @click="pagina++" :disabled="pagina===totalPaginas">Siguiente ›</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         VISTA 3: Administrar ciudades y conexiones
+    ============================================================ -->
+    <div v-if="vista === 'admin'">
+
+      <!-- Agregar ciudad -->
+      <div class="card">
+        <div class="card-title">Agregar nueva ciudad</div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>Nombre del departamento</label>
+          <input type="text" v-model="admin.nuevaCiudad" placeholder="ej. peten" @keyup.enter="agregarCiudad" />
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-success" @click="agregarCiudad" :disabled="cargandoAdmin || !admin.nuevaCiudad.trim()">
+            <span v-if="cargandoAdmin && admin.accionActual==='ciudad'"><span class="spinner"></span>Agregando...</span>
+            <span v-else>+ Agregar ciudad</span>
+          </button>
+          <button class="btn-sm" @click="admin.nuevaCiudad=''">Limpiar</button>
+        </div>
+        <div v-if="admin.msgCiudad" class="alert" :class="admin.okCiudad ? 'alert-success' : 'alert-error'">
+          {{ admin.msgCiudad }}
+        </div>
+      </div>
+
+      <!-- Agregar conexion -->
+      <div class="card">
+        <div class="card-title">Agregar nueva conexion (carretera)</div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="field">
+            <label>Ciudad A</label>
+            <div class="select-wrap">
+              <select v-model="admin.conexion.ciudadA">
+                <option value="">Selecciona ciudad</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Ciudad B</label>
+            <div class="select-wrap">
+              <select v-model="admin.conexion.ciudadB">
+                <option value="">Selecciona ciudad</option>
+                <option v-for="c in ciudades" :key="c" :value="c">{{ formatear(c) }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>Distancia en km</label>
+          <input type="number" v-model.number="admin.conexion.distancia" placeholder="ej. 150" min="1" />
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-success" @click="agregarConexion" :disabled="cargandoAdmin || !admin.conexion.ciudadA || !admin.conexion.ciudadB || !admin.conexion.distancia">
+            <span v-if="cargandoAdmin && admin.accionActual==='conexion'"><span class="spinner"></span>Agregando...</span>
+            <span v-else>+ Agregar conexion</span>
+          </button>
+          <button class="btn-sm" @click="limpiarConexion">Limpiar</button>
+        </div>
+        <div v-if="admin.msgConexion" class="alert" :class="admin.okConexion ? 'alert-success' : 'alert-error'">
+          {{ admin.msgConexion }}
+        </div>
+      </div>
+
+      <!-- Lista de ciudades actuales -->
+      <div class="card">
+        <div class="card-title">Ciudades en la base de conocimiento ({{ ciudades.length }})</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span v-for="c in ciudades" :key="c"
+            style="background:var(--bg);border:0.5px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:13px;text-transform:capitalize;">
+            {{ formatear(c) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const API = 'http://localhost:8000/api';
+
+    // ---- Estado global ----
+    const vista       = ref('corta');
+    const ciudades    = ref([]);
+
+    // ---- Vista 1: Ruta corta ----
+    const corta = ref({ origen: '', destino: '', resultado: null, error: '' });
+    const cargandoCorta = ref(false);
+
+    // ---- Vista 2: Todas las rutas ----
+    const todas  = ref({ origen: '', destino: '', resultado: null, error: '' });
+    const cargandoTodas = ref(false);
+    const pagina    = ref(1);
+    const porPagina = 15;
+
+    // ---- Vista 3: Admin ----
+    const admin = ref({
+      nuevaCiudad: '',
+      conexion: { ciudadA: '', ciudadB: '', distancia: null },
+      msgCiudad: '', okCiudad: true,
+      msgConexion: '', okConexion: true,
+      accionActual: '',
+    });
+    const cargandoAdmin = ref(false);
+
+    // ---- Helpers ----
+    const formatear = (s) =>
+      s.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    const cargarCiudades = async () => {
+      try {
+        const r = await fetch(`${API}/ciudades`);
+        const d = await r.json();
+        ciudades.value = d.ciudades || [];
+      } catch {
+        ciudades.value = [];
+      }
+    };
+
+    // ---- Acciones Vista 1 ----
+    const buscarCorta = async () => {
+      corta.value.error = '';
+      corta.value.resultado = null;
+      cargandoCorta.value = true;
+      try {
+        const r = await fetch(`${API}/ruta/corta?origen=${corta.value.origen}&destino=${corta.value.destino}`);
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Error al buscar ruta');
+        corta.value.resultado = d;
+      } catch (e) {
+        corta.value.error = e.message;
+      } finally {
+        cargandoCorta.value = false;
+      }
+    };
+
+    const limpiarCorta = () => {
+      corta.value = { origen: '', destino: '', resultado: null, error: '' };
+    };
+
+    // ---- Acciones Vista 2 ----
+    const buscarTodas = async () => {
+      todas.value.error = '';
+      todas.value.resultado = null;
+      cargandoTodas.value = true;
+      pagina.value = 1;
+      try {
+        const r = await fetch(`${API}/ruta/todas?origen=${todas.value.origen}&destino=${todas.value.destino}`);
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Error al buscar rutas');
+        todas.value.resultado = d;
+      } catch (e) {
+        todas.value.error = e.message;
+      } finally {
+        cargandoTodas.value = false;
+      }
+    };
+
+    const limpiarTodas = () => {
+      todas.value = { origen: '', destino: '', resultado: null, error: '' };
+      pagina.value = 1;
+    };
+
+    const rutasPaginadas = computed(() => {
+      if (!todas.value.resultado) return [];
+      const inicio = (pagina.value - 1) * porPagina;
+      return todas.value.resultado.rutas.slice(inicio, inicio + porPagina);
+    });
+
+    const totalPaginas = computed(() => {
+      if (!todas.value.resultado) return 1;
+      return Math.ceil(todas.value.resultado.total_rutas / porPagina);
+    });
+
+    // ---- Acciones Vista 3 ----
+    const agregarCiudad = async () => {
+      admin.value.msgCiudad = '';
+      admin.value.accionActual = 'ciudad';
+      cargandoAdmin.value = true;
+      try {
+        const r = await fetch(`${API}/ciudades`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: admin.value.nuevaCiudad.trim() }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Error al agregar ciudad');
+        admin.value.okCiudad = d.exito;
+        admin.value.msgCiudad = d.mensaje;
+        if (d.exito) {
+          admin.value.nuevaCiudad = '';
+          await cargarCiudades();
+        }
+      } catch (e) {
+        admin.value.okCiudad = false;
+        admin.value.msgCiudad = e.message;
+      } finally {
+        cargandoAdmin.value = false;
+      }
+    };
+
+    const agregarConexion = async () => {
+      admin.value.msgConexion = '';
+      admin.value.accionActual = 'conexion';
+      cargandoAdmin.value = true;
+      try {
+        const r = await fetch(`${API}/conexiones`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ciudad_a: admin.value.conexion.ciudadA,
+            ciudad_b: admin.value.conexion.ciudadB,
+            distancia_km: admin.value.conexion.distancia,
+          }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Error al agregar conexion');
+        admin.value.okConexion = d.exito;
+        admin.value.msgConexion = d.mensaje;
+        if (d.exito) limpiarConexion();
+      } catch (e) {
+        admin.value.okConexion = false;
+        admin.value.msgConexion = e.message;
+      } finally {
+        cargandoAdmin.value = false;
+      }
+    };
+
+    const limpiarConexion = () => {
+      admin.value.conexion = { ciudadA: '', ciudadB: '', distancia: null };
+    };
+
+    onMounted(cargarCiudades);
+
+    return {
+      vista, ciudades, formatear,
+      corta, cargandoCorta, buscarCorta, limpiarCorta,
+      todas, cargandoTodas, buscarTodas, limpiarTodas,
+      rutasPaginadas, totalPaginas, pagina, porPagina,
+      admin, cargandoAdmin, agregarCiudad, agregarConexion, limpiarConexion,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
