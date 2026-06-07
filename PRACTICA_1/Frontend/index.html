@@ -282,19 +282,14 @@
 
 <div id="app">
 
-  <!-- ===== NAVBAR ===== -->
   <nav>
-    <span class="nav-logo">🗺 Rutas Guatemala</span>
+    <span class="nav-logo">Rutas Guatemala</span>
     <button class="nav-btn" :class="{active: vista==='corta'}"   @click="vista='corta'">Ruta corta</button>
     <button class="nav-btn" :class="{active: vista==='todas'}"   @click="vista='todas'">Todas las rutas</button>
     <button class="nav-btn" :class="{active: vista==='admin'}"   @click="vista='admin'">Administrar</button>
   </nav>
 
   <main>
-
-    <!-- ============================================================
-         VISTA 1: Ruta mas corta
-    ============================================================ -->
     <div v-if="vista === 'corta'">
       <div class="card">
         <div class="card-title">Buscar ruta mas corta</div>
@@ -328,10 +323,8 @@
           <button class="btn-sm" @click="limpiarCorta">Limpiar</button>
         </div>
 
-        <!-- Error -->
         <div v-if="corta.error" class="alert alert-error">{{ corta.error }}</div>
 
-        <!-- Resultado -->
         <div v-if="corta.resultado" class="result-box">
           <div class="result-label">Ruta optima encontrada</div>
           <div class="chip-row">
@@ -349,7 +342,6 @@
         </div>
       </div>
 
-      <!-- Stats rapidas si hay resultado -->
       <div v-if="corta.resultado" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
         <div class="card" style="text-align:center;padding:14px;">
           <div style="font-size:22px;font-weight:600;color:var(--blue-txt);">{{ corta.resultado.ruta.distancia_km }}</div>
@@ -367,9 +359,6 @@
     </div>
 
 
-    <!-- ============================================================
-         VISTA 2: Todas las rutas
-    ============================================================ -->
     <div v-if="vista === 'todas'">
       <div class="card">
         <div class="card-title">Ver todas las rutas posibles</div>
@@ -406,7 +395,6 @@
         <div v-if="todas.error" class="alert alert-error">{{ todas.error }}</div>
       </div>
 
-      <!-- Tabla de resultados -->
       <div v-if="todas.resultado" class="card">
         <div class="rutas-header">
           <div class="card-title" style="margin-bottom:0;">
@@ -442,7 +430,6 @@
           </tbody>
         </table>
 
-        <!-- Paginacion -->
         <div class="pag-row" v-if="totalPaginas > 1">
           <button class="btn-sm" @click="pagina--" :disabled="pagina===1">‹ Anterior</button>
           <span style="font-size:13px;color:var(--muted);padding:5px 8px;">{{ pagina }} / {{ totalPaginas }}</span>
@@ -452,12 +439,8 @@
     </div>
 
 
-    <!-- ============================================================
-         VISTA 3: Administrar ciudades y conexiones
-    ============================================================ -->
     <div v-if="vista === 'admin'">
 
-      <!-- Agregar ciudad -->
       <div class="card">
         <div class="card-title">Agregar nueva ciudad</div>
         <div class="field" style="margin-bottom:12px;">
@@ -476,7 +459,6 @@
         </div>
       </div>
 
-      <!-- Agregar conexion -->
       <div class="card">
         <div class="card-title">Agregar nueva conexion (carretera)</div>
         <div class="grid2" style="margin-bottom:12px;">
@@ -515,7 +497,6 @@
         </div>
       </div>
 
-      <!-- Lista de ciudades actuales -->
       <div class="card">
         <div class="card-title">Ciudades en la base de conocimiento ({{ ciudades.length }})</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -537,21 +518,17 @@ createApp({
   setup() {
     const API = window.location.hostname === 'localhost' && window.location.port === '5500' ? 'http://localhost:8000/api' : '/api';
 
-    // ---- Estado global ----
     const vista       = ref('corta');
     const ciudades    = ref([]);
 
-    // ---- Vista 1: Ruta corta ----
     const corta = ref({ origen: '', destino: '', resultado: null, error: '' });
     const cargandoCorta = ref(false);
 
-    // ---- Vista 2: Todas las rutas ----
     const todas  = ref({ origen: '', destino: '', resultado: null, error: '' });
     const cargandoTodas = ref(false);
     const pagina    = ref(1);
     const porPagina = 15;
 
-    // ---- Vista 3: Admin ----
     const admin = ref({
       nuevaCiudad: '',
       conexion: { ciudadA: '', ciudadB: '', distancia: null },
@@ -561,7 +538,6 @@ createApp({
     });
     const cargandoAdmin = ref(false);
 
-    // ---- Helpers ----
     const formatear = (s) =>
       s.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
@@ -575,7 +551,6 @@ createApp({
       }
     };
 
-    // ---- Acciones Vista 1 ----
     const buscarCorta = async () => {
       corta.value.error = '';
       corta.value.resultado = null;
@@ -596,7 +571,6 @@ createApp({
       corta.value = { origen: '', destino: '', resultado: null, error: '' };
     };
 
-    // ---- Acciones Vista 2 ----
     const buscarTodas = async () => {
       todas.value.error = '';
       todas.value.resultado = null;
@@ -630,7 +604,6 @@ createApp({
       return Math.ceil(todas.value.resultado.total_rutas / porPagina);
     });
 
-    // ---- Acciones Vista 3 ----
     const agregarCiudad = async () => {
       admin.value.msgCiudad = '';
       admin.value.accionActual = 'ciudad';

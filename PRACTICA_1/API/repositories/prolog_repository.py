@@ -8,11 +8,6 @@ _PROLOG_FILE = os.environ.get("PROLOG_FILE", "/app/prolog/rutas.pl")
 
 
 class PrologRepository:
-    """
-    Encapsula toda comunicacion con SWI-Prolog via PySwip.
-    Instancia Singleton: el archivo .pl se carga una sola vez.
-    """
-
     _instance: Optional["PrologRepository"] = None
     _prolog: Optional[Prolog] = None
 
