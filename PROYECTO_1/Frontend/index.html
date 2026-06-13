@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Byte · Diagnóstico de fallas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#E9EEF2;
+    --panel:#FFFFFF;
+    --ink:#14202E;
+    --muted:#62707F;
+    --line:#D8E0E8;
+    --primary:#0F766E;
+    --primary-700:#0B5A54;
+    --primary-tint:#E2F1EF;
+    --fault:#C2410C;
+    --fault-tint:#FBEAE1;
+    --ok:#15803D;
+    --shadow:0 1px 2px rgba(20,32,46,.04), 0 8px 24px rgba(20,32,46,.06);
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    font-family:"Inter",system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  button{font-family:inherit;cursor:pointer;}
+  code,.mono{font-family:"IBM Plex Mono",monospace;}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 64px;}
+
+  .head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand__mark{
+    width:46px;height:46px;border-radius:12px;flex-shrink:0;
+    background:linear-gradient(150deg,var(--primary),var(--primary-700));
+    display:grid;place-items:center;color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .brand__mark svg{width:24px;height:24px;}
+  .brand__name{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1.5rem;letter-spacing:-.02em;line-height:1.1;}
+  .brand__sub{font-size:.82rem;color:var(--muted);margin-top:1px;}
+
+  .status{
+    display:flex;align-items:center;gap:9px;
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:7px 14px;font-size:.78rem;color:var(--muted);box-shadow:var(--shadow);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+  .dot--ok{background:var(--ok);box-shadow:0 0 0 4px rgba(21,128,61,.15);}
+  .dot--off{background:var(--fault);box-shadow:0 0 0 4px rgba(194,65,12,.15);}
+  @media(prefers-reduced-motion:no-preference){
+    .dot--ok{animation:pulse 2.4s ease-in-out infinite;}
+  }
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(21,128,61,.18);}50%{box-shadow:0 0 0 6px rgba(21,128,61,.06);}}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:20px;}
+  @media(min-width:880px){.grid{grid-template-columns:1.05fr .95fr;align-items:start;}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .panel__bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);}
+  .panel__title{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:1.02rem;letter-spacing:-.01em;}
+  .panel__eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px;}
+  .badge{font-family:"IBM Plex Mono",monospace;font-size:.74rem;background:var(--primary-tint);color:var(--primary-700);border-radius:999px;padding:4px 11px;font-weight:500;}
+  .panel__body{padding:18px 20px;}
+
+  .filter{position:relative;margin-bottom:14px;}
+  .filter input{
+    width:100%;border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px 10px 36px;font-size:.9rem;color:var(--ink);background:#fff;
+  }
+  .filter input:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary);}
+  .filter svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);}
+
+  .symptoms{display:grid;grid-template-columns:1fr;gap:8px;max-height:48vh;overflow-y:auto;padding-right:4px;}
+  @media(min-width:520px){.symptoms{grid-template-columns:1fr 1fr;}}
+  .chip{
+    display:flex;align-items:flex-start;gap:10px;text-align:left;
+    border:1px solid var(--line);background:#fff;border-radius:11px;
+    padding:11px 12px;transition:border-color .12s,background .12s,box-shadow .12s;
+    width:100%;
+  }
+  .chip:hover{border-color:#B9C6D2;}
+  .chip:focus-visible{outline:2px solid var(--primary);outline-offset:1px;}
+  .chip--on{border-color:var(--primary);background:var(--primary-tint);}
+  .chip__box{
+    width:18px;height:18px;border-radius:5px;border:1.5px solid #BCC8D4;flex-shrink:0;margin-top:1px;
+    display:grid;place-items:center;background:#fff;transition:.12s;
+  }
+  .chip--on .chip__box{background:var(--primary);border-color:var(--primary);}
+  .chip__box svg{width:12px;height:12px;color:#fff;opacity:0;transition:.12s;}
+  .chip--on .chip__box svg{opacity:1;}
+  .chip__txt{font-size:.86rem;line-height:1.35;}
+  .chip__id{display:block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--muted);margin-top:3px;}
+
+  .empty-filter{color:var(--muted);font-size:.86rem;padding:14px 4px;}
+
+  .actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
+  .btn{
+    border:1px solid transparent;border-radius:10px;padding:11px 18px;
+    font-size:.9rem;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:.12s;
+  }
+  .btn--primary{background:var(--primary);color:#fff;}
+  .btn--primary:hover{background:var(--primary-700);}
+  .btn--primary:disabled{background:#A9B8B6;cursor:not-allowed;}
+  .btn--ghost{background:#fff;border-color:var(--line);color:var(--ink);}
+  .btn--ghost:hover{border-color:#B9C6D2;}
+  .btn--ghost:disabled{color:#A9B4BF;cursor:not-allowed;}
+  .count{font-size:.82rem;color:var(--muted);margin-left:auto;}
+  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .readout{min-height:240px;}
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:48px 24px;gap:12px;}
+  .placeholder svg{width:40px;height:40px;color:#C2CDD8;}
+  .placeholder p{margin:0;font-size:.9rem;max-width:30ch;}
+
+  .alert{display:flex;gap:10px;align-items:flex-start;background:var(--fault-tint);border:1px solid #F0C8B5;border-radius:11px;padding:13px 14px;font-size:.86rem;color:#7C2D12;}
+  .alert svg{width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fault);}
+
+  .summary{font-size:.9rem;color:var(--muted);margin:0 0 14px;}
+  .summary strong{color:var(--ink);}
+
+  .faults{display:flex;flex-direction:column;gap:12px;}
+  .fault{border:1px solid var(--line);border-left:3px solid var(--fault);border-radius:11px;padding:14px 15px;background:#fff;}
+  .fault__head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px;}
+  .fault__name{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:.98rem;}
+  .fault__code{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--fault);background:var(--fault-tint);padding:3px 8px;border-radius:6px;white-space:nowrap;}
+  .fault__rec{display:flex;gap:8px;font-size:.85rem;color:#334155;background:#F6F8FA;border-radius:8px;padding:9px 11px;}
+  .fault__rec span{font-weight:600;color:var(--primary-700);}
+
+  .clear-note{display:flex;gap:9px;align-items:flex-start;border:1px dashed var(--line);border-radius:11px;padding:14px;font-size:.86rem;color:var(--muted);}
+  .clear-note svg{width:18px;height:18px;flex-shrink:0;color:var(--ok);margin-top:1px;}
+
+  .foot{text-align:center;margin-top:32px;font-size:.76rem;color:var(--muted);}
+  .foot code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 6px;}
+
+  .fade-enter-active{transition:opacity .25s ease, transform .25s ease;}
+  .fade-enter-from{opacity:0;transform:translateY(6px);}
+</style>
+</head>
+<body>
+<div id="app" class="wrap">
+
+  <header class="head">
+    <div class="brand">
+      <div class="brand__mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>
+          <path d="M7 10h2l1.5 3 2-6L14 10h3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand__name">Doctor Byte</div>
+        <div class="brand__sub">Diagnóstico de fallas en computadoras</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="dot" :class="conexion==='ok' ? 'dot--ok' : (conexion==='off' ? 'dot--off' : '')"></span>
+      <span v-if="conexion==='ok'">Motor conectado</span>
+      <span v-else-if="conexion==='off'">Sin conexión al backend</span>
+      <span v-else>Conectando…</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <section class="panel">
+      <div class="panel__bar">
+        <div>
+          <span class="panel__eyebrow">Paso 1</span>
+          <span class="panel__title">Seleccioná los síntomas</span>
+        </div>
+        <span class="badge mono">{{ seleccionados.length }}/{{ sintomas.length }}</span>
+      </div>
+      <div class="panel__body">
+
+        <div class="filter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input v-model="filtro" type="text" placeholder="Buscar síntoma…" aria-label="Buscar síntoma">
+        </div>
+
+        <div v-if="cargandoSintomas" class="empty-filter">Cargando catálogo de síntomas…</div>
+
+        <div v-else-if="errorSintomas" class="alert" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+          <div>
+            No se pudo cargar el catálogo. Verificá que el backend esté corriendo en
+            <code>{{ apiBase }}</code> y volvé a intentar.
+            <button class="btn btn--ghost" style="margin-top:10px" @click="cargarSintomas">Reintentar</button>
+          </div>
+        </div>
+
+        <template v-else>
+          <div class="symptoms">
+            <button
+              v-for="s in sintomasFiltrados" :key="s.id"
+              class="chip" :class="{ 'chip--on': estaSeleccionado(s.id) }"
+              :aria-pressed="estaSeleccionado(s.id)"
+              @click="alternar(s.id)">
+              <span class="chip__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>
+              </span>
+              <span class="chip__txt">
+                {{ s.descripcion }}
+                <span class="chip__id">{{ s.id }}</span>
+              </span>
+            </button>
+          </div>
+          <p v-if="sintomasFiltrados.length===0" class="empty-filter">
+            Ningún síntoma coincide con “{{ filtro }}”.
+          </p>
+
+          <div class="actions">
+            <button class="btn btn--primary" :disabled="seleccionados.length===0 || diagnosticando" @click="diagnosticar">
+              <span v-if="diagnosticando" class="spinner"></span>
+              {{ diagnosticando ? 'Analizando…' : 'Diagnosticar' }}
+            </button>
+            <button class="btn btn--ghost" :disabled="seleccionados.length===0 && !resultado" @click="limpiar">
+              Limpiar
+            </button>
+            <span class="count">{{ seleccionados.length }} seleccionado(s)</span>
+          </div>
+        </template>
+
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__bar">
+        <div>
+          <span class="panel__eyebrow">Paso 2</span>
+          <span class="panel__title">Informe de diagnóstico</span>
+        </div>
+        <span v-if="resultado && resultado.fallas.length" class="badge mono">{{ resultado.fallas.length }} falla(s)</span>
+      </div>
+      <div class="panel__body readout">
+
+        <div v-if="errorDiagnostico" class="alert" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+          <div>{{ errorDiagnostico }}</div>
+        </div>
+
+        <div v-else-if="!resultado" class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l2 5 4-10 2 5h4"/></svg>
+          <p>Elegí uno o más síntomas y presioná <strong>Diagnosticar</strong> para ver el informe.</p>
+        </div>
+
+        <transition name="fade">
+          <div v-if="resultado && resultado.fallas.length===0" class="clear-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div>{{ resultado.mensaje }}</div>
+          </div>
+        </transition>
+
+        <transition name="fade">
+          <div v-if="resultado && resultado.fallas.length">
+            <p class="summary"><strong>{{ resultado.mensaje }}</strong> Evaluados {{ resultado.sintomas_evaluados.length }} síntoma(s).</p>
+            <div class="faults">
+              <article v-for="f in resultado.fallas" :key="f.id" class="fault">
+                <div class="fault__head">
+                  <div class="fault__name">{{ f.descripcion }}</div>
+                  <span class="fault__code">{{ f.id }}</span>
+                </div>
+                <div class="fault__rec"><span>Recomendación:</span> {{ f.recomendacion }}</div>
+              </article>
+            </div>
+          </div>
+        </transition>
+
+      </div>
+    </section>
+
+  </div>
+
+  <p class="foot">Doctor Byte · API en <code>{{ apiBase }}</code></p>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp, ref, computed, onMounted } = Vue;
+
+createApp({
+  setup(){
+    const apiBase = "http://localhost:8000";
+
+    const sintomas = ref([]);
+    const seleccionados = ref([]);
+    const filtro = ref("");
+    const resultado = ref(null);
+
+    const conexion = ref("conectando");  
+    const cargandoSintomas = ref(true);
+    const errorSintomas = ref(false);
+    const diagnosticando = ref(false);
+    const errorDiagnostico = ref("");
+
+    const sintomasFiltrados = computed(() => {
+      const q = filtro.value.trim().toLowerCase();
+      if(!q) return sintomas.value;
+      return sintomas.value.filter(s =>
+        s.descripcion.toLowerCase().includes(q) || s.id.toLowerCase().includes(q));
+    });
+
+    const estaSeleccionado = (id) => seleccionados.value.includes(id);
+
+    function alternar(id){
+      const i = seleccionados.value.indexOf(id);
+      if(i === -1) seleccionados.value.push(id);
+      else seleccionados.value.splice(i, 1);
+    }
+
+    async function cargarSintomas(){
+      cargandoSintomas.value = true;
+      errorSintomas.value = false;
+      try{
+        const r = await fetch(`${apiBase}/sintomas`);
+        if(!r.ok) throw new Error("respuesta " + r.status);
+        sintomas.value = await r.json();
+        conexion.value = "ok";
+      }catch(e){
+        errorSintomas.value = true;
+        conexion.value = "off";
+      }finally{
+        cargandoSintomas.value = false;
+      }
+    }
+
+    async function diagnosticar(){
+      if(seleccionados.value.length === 0) return;
+      diagnosticando.value = true;
+      errorDiagnostico.value = "";
+      resultado.value = null;
+      try{
+        const r = await fetch(`${apiBase}/diagnostico`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sintomas: seleccionados.value })
+        });
+        const data = await r.json();
+        if(!r.ok){
+          errorDiagnostico.value = data.detail || `El servidor respondió ${r.status}.`;
+          return;
+        }
+        resultado.value = data;
+      }catch(e){
+        errorDiagnostico.value = `No se pudo contactar al backend en ${apiBase}. Verificá que esté corriendo.`;
+      }finally{
+        diagnosticando.value = false;
+      }
+    }
+
+    function limpiar(){
+      seleccionados.value = [];
+      resultado.value = null;
+      errorDiagnostico.value = "";
+      filtro.value = "";
+    }
+
+    onMounted(cargarSintomas);
+
+    return {
+      apiBase, sintomas, seleccionados, filtro, resultado,
+      conexion, cargandoSintomas, errorSintomas, diagnosticando, errorDiagnostico,
+      sintomasFiltrados, estaSeleccionado, alternar, cargarSintomas, diagnosticar, limpiar
+    };
+  }
+}).mount("#app");
+</script>
+</body>
+</html>
