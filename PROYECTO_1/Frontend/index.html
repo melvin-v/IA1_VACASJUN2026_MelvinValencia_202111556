@@ -66,6 +66,7 @@
   }
   @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(21,128,61,.18);}50%{box-shadow:0 0 0 6px rgba(21,128,61,.06);}}
 
+  /* ===== Grid ===== */
   .grid{display:grid;grid-template-columns:1fr;gap:20px;}
   @media(min-width:880px){.grid{grid-template-columns:1.05fr .95fr;align-items:start;}}
 
@@ -76,6 +77,7 @@
   .badge{font-family:"IBM Plex Mono",monospace;font-size:.74rem;background:var(--primary-tint);color:var(--primary-700);border-radius:999px;padding:4px 11px;font-weight:500;}
   .panel__body{padding:18px 20px;}
 
+  /* ===== Filtro ===== */
   .filter{position:relative;margin-bottom:14px;}
   .filter input{
     width:100%;border:1px solid var(--line);border-radius:10px;
@@ -84,6 +86,7 @@
   .filter input:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary);}
   .filter svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);}
 
+  /* ===== Síntomas ===== */
   .symptoms{display:grid;grid-template-columns:1fr;gap:8px;max-height:48vh;overflow-y:auto;padding-right:4px;}
   @media(min-width:520px){.symptoms{grid-template-columns:1fr 1fr;}}
   .chip{
@@ -107,6 +110,7 @@
 
   .empty-filter{color:var(--muted);font-size:.86rem;padding:14px 4px;}
 
+  /* ===== Acciones ===== */
   .actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
   .btn{
     border:1px solid transparent;border-radius:10px;padding:11px 18px;
@@ -122,6 +126,7 @@
   .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  /* ===== Resultados ===== */
   .readout{min-height:240px;}
   .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:48px 24px;gap:12px;}
   .placeholder svg{width:40px;height:40px;color:#C2CDD8;}
@@ -147,6 +152,21 @@
   .foot{text-align:center;margin-top:32px;font-size:.76rem;color:var(--muted);}
   .foot code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 6px;}
 
+  /* ===== Historial ===== */
+  .history{margin-top:20px;}
+  .history__list{display:flex;flex-direction:column;gap:10px;}
+  .hist{border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:9px;}
+  .hist__top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .hist__date{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--muted);}
+  .hist__faults{display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{font-size:.74rem;border-radius:999px;padding:3px 10px;background:var(--fault-tint);color:#7C2D12;font-weight:500;}
+  .tag--ok{background:var(--primary-tint);color:var(--primary-700);}
+  .hist__symptoms{display:flex;flex-wrap:wrap;gap:5px;}
+  .scode{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--muted);background:#F1F5F8;border-radius:6px;padding:2px 7px;}
+  .hist-empty{color:var(--muted);font-size:.88rem;padding:18px 4px;text-align:center;}
+  .btn--mini{padding:7px 12px;font-size:.82rem;}
+
+  /* fade de entrada para resultados */
   .fade-enter-active{transition:opacity .25s ease, transform .25s ease;}
   .fade-enter-from{opacity:0;transform:translateY(6px);}
 </style>
@@ -178,6 +198,7 @@
 
   <div class="grid">
 
+    <!-- ====== Síntomas ====== -->
     <section class="panel">
       <div class="panel__bar">
         <div>
@@ -239,6 +260,7 @@
       </div>
     </section>
 
+    <!-- ====== Resultado ====== -->
     <section class="panel">
       <div class="panel__bar">
         <div>
@@ -249,16 +271,19 @@
       </div>
       <div class="panel__body readout">
 
+        <!-- Error de la petición -->
         <div v-if="errorDiagnostico" class="alert" role="alert">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
           <div>{{ errorDiagnostico }}</div>
         </div>
 
+        <!-- Estado inicial -->
         <div v-else-if="!resultado" class="placeholder">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l2 5 4-10 2 5h4"/></svg>
           <p>Elegí uno o más síntomas y presioná <strong>Diagnosticar</strong> para ver el informe.</p>
         </div>
 
+        <!-- Sin fallas -->
         <transition name="fade">
           <div v-if="resultado && resultado.fallas.length===0" class="clear-note">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -266,6 +291,7 @@
           </div>
         </transition>
 
+        <!-- Con fallas -->
         <transition name="fade">
           <div v-if="resultado && resultado.fallas.length">
             <p class="summary"><strong>{{ resultado.mensaje }}</strong> Evaluados {{ resultado.sintomas_evaluados.length }} síntoma(s).</p>
@@ -286,6 +312,38 @@
 
   </div>
 
+  <!-- ====== Historial ====== -->
+  <section class="panel history">
+    <div class="panel__bar">
+      <div>
+        <span class="panel__eyebrow">Registro</span>
+        <span class="panel__title">Historial de diagnósticos</span>
+      </div>
+      <button class="btn btn--ghost btn--mini" @click="cargarHistorial" :disabled="cargandoHistorial">
+        {{ cargandoHistorial ? 'Actualizando…' : 'Actualizar' }}
+      </button>
+    </div>
+    <div class="panel__body">
+      <div v-if="historial.length === 0" class="hist-empty">
+        Todavía no hay diagnósticos registrados. El primero aparecerá acá.
+      </div>
+      <div v-else class="history__list">
+        <article v-for="h in historial" :key="h.id" class="hist">
+          <div class="hist__top">
+            <span class="hist__date">{{ formatearFecha(h.fecha) }}</span>
+            <div class="hist__faults">
+              <span v-if="h.fallas.length === 0" class="tag tag--ok">Sin fallas</span>
+              <span v-for="f in h.fallas" :key="f.id" class="tag">{{ f.descripcion }}</span>
+            </div>
+          </div>
+          <div class="hist__symptoms">
+            <span v-for="s in h.sintomas_evaluados" :key="s" class="scode">{{ s }}</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <p class="foot">Doctor Byte · API en <code>{{ apiBase }}</code></p>
 </div>
 
@@ -295,14 +353,17 @@ const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup(){
+    // Cambiá esta URL si el backend corre en otra dirección o puerto.
     const apiBase = "http://localhost:8000";
 
     const sintomas = ref([]);
     const seleccionados = ref([]);
     const filtro = ref("");
     const resultado = ref(null);
+    const historial = ref([]);
+    const cargandoHistorial = ref(false);
 
-    const conexion = ref("conectando");  
+    const conexion = ref("conectando");      // conectando | ok | off
     const cargandoSintomas = ref(true);
     const errorSintomas = ref(false);
     const diagnosticando = ref(false);
@@ -356,6 +417,7 @@ createApp({
           return;
         }
         resultado.value = data;
+        cargarHistorial();
       }catch(e){
         errorDiagnostico.value = `No se pudo contactar al backend en ${apiBase}. Verificá que esté corriendo.`;
       }finally{
@@ -370,12 +432,34 @@ createApp({
       filtro.value = "";
     }
 
-    onMounted(cargarSintomas);
+    async function cargarHistorial(){
+      cargandoHistorial.value = true;
+      try{
+        const r = await fetch(`${apiBase}/historial?limite=10`);
+        if(r.ok) historial.value = await r.json();
+      }catch(e){
+        // si falla, dejamos el historial como esté; no es crítico
+      }finally{
+        cargandoHistorial.value = false;
+      }
+    }
+
+    function formatearFecha(iso){
+      const d = new Date(iso);
+      if(isNaN(d.getTime())) return iso;
+      return d.toLocaleString("es-GT", {
+        day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    onMounted(() => { cargarSintomas(); cargarHistorial(); });
 
     return {
       apiBase, sintomas, seleccionados, filtro, resultado,
+      historial, cargandoHistorial,
       conexion, cargandoSintomas, errorSintomas, diagnosticando, errorDiagnostico,
-      sintomasFiltrados, estaSeleccionado, alternar, cargarSintomas, diagnosticar, limpiar
+      sintomasFiltrados, estaSeleccionado, alternar, cargarSintomas, diagnosticar, limpiar,
+      cargarHistorial, formatearFecha
     };
   }
 }).mount("#app");
