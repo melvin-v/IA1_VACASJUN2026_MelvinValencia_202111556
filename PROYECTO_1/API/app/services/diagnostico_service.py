@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 
+from app.notifiers.telegram_notifier import TelegramNotifier
 from app.repositories.prolog_repository import PrologRepository
 from app.schemas.diagnostico_schema import (
     DiagnosticoResponse,
@@ -9,8 +10,13 @@ from app.schemas.diagnostico_schema import (
 
 
 class DiagnosticoService:
-    def __init__(self, repositorio: PrologRepository):
+    def __init__(
+        self,
+        repositorio: PrologRepository,
+        notificador: TelegramNotifier | None = None,
+    ):
         self._repo = repositorio
+        self._notificador = notificador
 
     def listar_sintomas(self) -> list[SintomaOut]:
         return [SintomaOut(**s) for s in self._repo.listar_sintomas()]
@@ -50,8 +56,12 @@ class DiagnosticoService:
                 "Intente seleccionar sintomas adicionales."
             )
 
-        return DiagnosticoResponse(
+        respuesta = DiagnosticoResponse(
             sintomas_evaluados=unicos,
             fallas=fallas,
             mensaje=mensaje,
         )
+        if self._notificador is not None:
+            self._notificador.enviar_diagnostico(respuesta)
+
+        return respuesta
