@@ -107,3 +107,28 @@ diagnostico(falla_perifericos) :-
     sintoma_activo(perifericos_no_responden),
     sintoma_activo(usb_no_reconocido).
 
+cargar_sintomas(ListaSintomas) :-
+    retractall(sintoma_activo(_)),
+    registrar_sintomas(ListaSintomas).
+
+registrar_sintomas([]) :- !.         
+registrar_sintomas([S | Resto]) :-
+    assertz(sintoma_activo(S)),
+    registrar_sintomas(Resto).
+
+diagnosticar(ListaSintomas, Fallas) :-
+    cargar_sintomas(ListaSintomas),
+    findall(F, diagnostico(F), FallasConRep),
+    list_to_set(FallasConRep, Fallas).
+
+diagnostico_completo(ListaSintomas, Resultado) :-
+    cargar_sintomas(ListaSintomas),
+    findall(r(Id, Desc, Rec),
+            ( diagnostico(Id),
+              falla(Id, Desc),
+              recomendacion(Id, Rec) ),
+            ResultadoConRep),
+    list_to_set(ResultadoConRep, Resultado).
+
+listar_sintomas(Lista) :-
+    findall(s(Id, Desc), sintoma(Id, Desc), Lista).
