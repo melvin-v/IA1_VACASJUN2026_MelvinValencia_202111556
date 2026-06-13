@@ -1,13 +1,3 @@
-"""Obtiene el chat_id para configurar las notificaciones.
-
-Pasos:
-  1. Crea el bot con @BotFather y copia el token en tu archivo .env
-     (variable TELEGRAM_BOT_TOKEN).
-  2. Abri Telegram, busca tu bot y enviale cualquier mensaje (ej: "hola").
-  3. Ejecuta este script:  python obtener_chat_id.py
-  4. Copia el chat_id que aparece en TELEGRAM_CHAT_ID dentro de tu .env
-"""
-
 import sys
 
 import httpx

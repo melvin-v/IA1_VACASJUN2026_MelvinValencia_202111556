@@ -2,6 +2,7 @@ FROM swipl:9.0.4 AS prolog-base
 FROM python:3.11-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Guatemala
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgmp10 \

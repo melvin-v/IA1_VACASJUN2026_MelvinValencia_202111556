@@ -1,9 +1,3 @@
-"""Prueba rapida del notificador de Telegram.
-
-Verifica que el token y el chat_id del .env funcionan, enviando un mensaje
-de prueba. Ejecutar:  python probar_telegram.py
-"""
-
 import sys
 
 import httpx
@@ -19,7 +13,7 @@ r = httpx.post(
     url,
     json={
         "chat_id": TELEGRAM_CHAT_ID,
-        "text": "\u2705 Doctor Byte esta conectado a Telegram correctamente.",
+        "text": "Doctor Byte esta conectado a Telegram correctamente.",
     },
     timeout=10,
 )

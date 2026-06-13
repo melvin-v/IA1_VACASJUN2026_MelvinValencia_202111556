@@ -9,8 +9,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS abierto para que el frontend (Etapa 3) pueda consumir la API
-# desde el navegador. En produccion se restringiria a dominios concretos.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,10 +16,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app.include_router(router)
 
 
 @app.get("/", tags=["General"])
 def raiz():
-    """Endpoint de salud del servicio."""
     return {"servicio": "Doctor Byte API", "estado": "activo", "docs": "/docs"}

@@ -2,7 +2,6 @@ import json
 import os
 import threading
 
-# Ubicacion del archivo de historial: backend/data/historial.json
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _RUTA_DEFECTO = os.path.normpath(
     os.path.join(_BASE_DIR, "..", "..", "data", "historial.json")
