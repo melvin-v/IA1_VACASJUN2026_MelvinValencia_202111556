@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: smartbot
+      POSTGRES_PASSWORD: smartbot
+      POSTGRES_DB: smartbot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://smartbot:smartbot@db:5432/smartbot
+      SECRET_KEY: ${SECRET_KEY}
+      BOT_API_KEY: ${BOT_API_KEY}
+      CORS_ORIGINS: "*"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  bot:
+    build: ./bot
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      API_URL: http://api:8000
+      BOT_API_KEY: ${BOT_API_KEY}
+    depends_on:
+      - api
+
+  admin:
+    build: ./admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
