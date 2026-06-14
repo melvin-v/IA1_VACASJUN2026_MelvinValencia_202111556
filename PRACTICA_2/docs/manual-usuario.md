@@ -86,4 +86,8 @@ Para borrar también los datos de la base, agrega la opción `-v`.
 
 ## 10. Evidencias de funcionamiento
 
-> Coloca aquí las capturas de pantalla del login, el CRUD de preguntas, el CRUD de categorías, las estadísticas, las consultas desde Telegram y la configuración del sistema.
+![Texto alternativo](img/login.png)
+![Texto alternativo](img/preguntas.png)
+![Texto alternativo](img/cateorias.png)
+![Texto alternativo](img/conf.png)
+![Texto alternativo](img/interaccion.png)
