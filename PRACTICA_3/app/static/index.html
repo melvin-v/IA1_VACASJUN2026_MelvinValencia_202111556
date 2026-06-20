@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartInvoice · Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Spline+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/css/styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login-view" class="login-view">
+  <div class="login-card">
+    <div class="brand"><span class="brand-mark">◣</span> SmartInvoice</div>
+    <p class="login-sub">Procesamiento inteligente de facturas · USAC</p>
+    <label>Correo</label>
+    <input id="login-email" type="email" placeholder="admin@usac.edu.gt" autocomplete="username">
+    <label>Contraseña</label>
+    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button id="btn-login" class="btn btn-primary">Ingresar</button>
+    <button id="btn-register" class="btn btn-ghost">Crear cuenta</button>
+    <p id="login-error" class="error-msg"></p>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app-view" class="app-view" hidden>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">◣</span> SmartInvoice</div>
+    <nav>
+      <button class="nav-item active" data-tab="upload">Procesar factura</button>
+      <button class="nav-item" data-tab="invoices">Facturas</button>
+      <button class="nav-item" data-tab="providers">Proveedores</button>
+      <button class="nav-item" data-tab="logs">Bitácora</button>
+      <button class="nav-item" data-tab="reports">Reportes</button>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="user-label" class="user-label"></span>
+      <button id="btn-logout" class="btn btn-ghost btn-sm">Salir</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <!-- UPLOAD -->
+    <section id="tab-upload" class="tab active">
+      <h1>Procesar factura</h1>
+      <p class="muted">Cargá una factura en PDF, JPG, JPEG o PNG. El sistema extrae los datos con OCR y los valida.</p>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" hidden>
+        <p>Arrastrá el archivo o <button id="btn-browse" class="link-btn">seleccionalo</button></p>
+        <p class="muted" id="file-name"></p>
+      </div>
+      <button id="btn-upload" class="btn btn-primary" disabled>Procesar</button>
+      <div id="upload-result" class="result-card" hidden></div>
+    </section>
+
+    <!-- INVOICES -->
+    <section id="tab-invoices" class="tab">
+      <div class="tab-head">
+        <h1>Facturas</h1>
+        <select id="status-filter" class="select">
+          <option value="">Todos los estados</option>
+          <option value="PROCESADO">Procesado</option>
+          <option value="RECHAZADO">Rechazado</option>
+          <option value="ERROR">Error</option>
+          <option value="PENDIENTE">Pendiente</option>
+        </select>
+      </div>
+      <div id="invoices-table"></div>
+    </section>
+
+    <!-- PROVIDERS -->
+    <section id="tab-providers" class="tab">
+      <h1>Proveedores</h1>
+      <div class="form-row">
+        <input id="prov-name" placeholder="Nombre">
+        <input id="prov-nit" placeholder="NIT">
+        <input id="prov-email" placeholder="Correo (opcional)">
+        <button id="btn-add-provider" class="btn btn-primary">Agregar</button>
+      </div>
+      <p id="provider-error" class="error-msg"></p>
+      <div id="providers-table"></div>
+    </section>
+
+    <!-- LOGS -->
+    <section id="tab-logs" class="tab">
+      <h1>Bitácora de procesamiento</h1>
+      <div id="logs-table"></div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="tab-reports" class="tab">
+      <h1>Reportes</h1>
+      <p class="muted">Descargá el reporte administrativo con todas las facturas procesadas.</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" data-report="pdf">Descargar PDF</button>
+        <button class="btn btn-primary" data-report="xlsx">Descargar Excel</button>
+        <button class="btn btn-primary" data-report="csv">Descargar CSV</button>
+      </div>
+      <h2>Enviar por correo</h2>
+      <div class="form-row">
+        <input id="email-to" placeholder="destinatario@correo.com">
+        <select id="email-format" class="select">
+          <option value="pdf">PDF</option>
+          <option value="xlsx">Excel</option>
+          <option value="csv">CSV</option>
+        </select>
+        <button id="btn-email" class="btn btn-primary">Enviar</button>
+      </div>
+      <p id="report-msg" class="info-msg"></p>
+    </section>
+  </main>
+</div>
+
+<script src="/app/js/app.js"></script>
+</body>
+</html>
