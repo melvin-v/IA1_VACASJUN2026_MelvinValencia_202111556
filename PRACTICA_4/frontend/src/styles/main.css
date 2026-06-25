@@ -1,0 +1,139 @@
+/* ============================================================
+   RoboMaze — tema "terminal de control robótico"
+   Paleta oscura tipo blueprint, mono-forward, acentos ámbar/cian.
+   ============================================================ */
+
+:root {
+  /* Superficies */
+  --bg: #0a0e17;
+  --bg-grid: #0d1320;
+  --panel: #111827;
+  --panel-2: #0f1623;
+  --border: #1f2a3a;
+  --border-bright: #2a3b52;
+
+  /* Texto */
+  --text: #c7d3e3;
+  --text-dim: #6b7a90;
+  --text-bright: #eef4ff;
+
+  /* Acentos */
+  --amber: #f2a93b;      /* ruta / agente */
+  --cyan: #38d9c4;       /* exploración / BFS */
+  --magenta: #e85d9c;    /* meta / DFS */
+  --green: #5ad17a;      /* inicio */
+  --red: #ff5d5d;        /* error */
+
+  --wall: #34425a;
+
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --glow-amber: 0 0 14px rgba(242, 169, 59, 0.55);
+  --glow-cyan: 0 0 14px rgba(56, 217, 196, 0.5);
+
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(56, 217, 196, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 217, 196, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 80% -10%, rgba(242, 169, 59, 0.08), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(232, 93, 156, 0.06), transparent 40%);
+  background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--text-bright);
+}
+
+button {
+  font-family: var(--font-display);
+  cursor: pointer;
+  border: 1px solid var(--border-bright);
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 0.55rem 0.9rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--cyan);
+  color: var(--text-bright);
+  box-shadow: var(--glow-cyan);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: linear-gradient(135deg, var(--amber), #d88a1e);
+  color: #1a1206;
+  border-color: var(--amber);
+  font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) {
+  box-shadow: var(--glow-amber);
+  border-color: var(--amber);
+  color: #000;
+}
+
+button.active {
+  border-color: var(--amber);
+  color: var(--amber);
+  box-shadow: inset 0 0 0 1px var(--amber);
+}
+
+select {
+  font-family: var(--font-mono);
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-grid);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 4px;
+}
