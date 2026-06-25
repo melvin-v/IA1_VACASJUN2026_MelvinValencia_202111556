@@ -1,10 +1,3 @@
-"""
-Strategy Pattern para los algoritmos de búsqueda.
-
-Cada algoritmo (BFS, DFS, y opcionalmente A*) implementa la misma interfaz
-`SearchStrategy.search(...)`. Esto permite que el servicio ejecute cualquier
-algoritmo sin conocer su implementación interna, y facilita agregar nuevos.
-"""
 from __future__ import annotations
 
 import time

@@ -1,10 +1,3 @@
-"""
-Schemas Pydantic (capa de transporte de la API REST).
-
-Separan el formato JSON que viaja por HTTP de los modelos de dominio.
-En JSON una posición es una lista [fila, columna]; en el dominio es una
-tupla. Los mappers de este módulo hacen la conversión en ambos sentidos.
-"""
 from __future__ import annotations
 
 from typing import List, Optional
@@ -13,11 +6,8 @@ from pydantic import BaseModel, Field
 
 from app.domain.models import Maze, SearchResult
 
-# Una posición en JSON viaja como [fila, columna].
 PositionSchema = List[int]
 
-
-# --------------------------- Laberinto ------------------------------ #
 class MazeSchema(BaseModel):
     """Laberinto tal como viaja por la API."""
     id: str = Field(..., examples=["custom_1"])
@@ -51,7 +41,6 @@ class MazeSchema(BaseModel):
         )
 
 
-# --------------------------- Resultado ------------------------------ #
 class SearchResultSchema(BaseModel):
     """Resultado de una búsqueda tal como viaja por la API."""
     algorithm: str
@@ -75,19 +64,12 @@ class SearchResultSchema(BaseModel):
         )
 
 
-# --------------------------- Requests ------------------------------- #
 class SearchRequest(BaseModel):
-    """
-    Petición de búsqueda. El laberinto viaja en el cuerpo, de modo que el
-    frontend puede enviar tanto un laberinto predefinido como uno dibujado
-    por el usuario.
-    """
     maze: MazeSchema
     algorithm: str = Field(..., examples=["BFS"])
 
 
 class CompareRequest(BaseModel):
-    """Petición de comparación entre varios algoritmos sobre un laberinto."""
     maze: MazeSchema
     algorithms: Optional[List[str]] = Field(
         default=None,
@@ -97,7 +79,6 @@ class CompareRequest(BaseModel):
 
 
 class CompareResponse(BaseModel):
-    """Resultados de la comparación, uno por algoritmo."""
     maze_id: str
     results: List[SearchResultSchema]
 

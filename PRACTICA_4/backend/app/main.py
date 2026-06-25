@@ -1,15 +1,3 @@
-"""
-Punto de entrada de la API REST de RoboMaze.
-
-Configura la aplicación FastAPI, el middleware de CORS (para que el
-frontend Vue pueda consumir la API desde otro origen/puerto) y monta
-las rutas.
-
-Ejecutar en desarrollo:
-    uvicorn app.main:app --reload --port 8000
-
-Documentación interactiva (Swagger):  http://localhost:8000/docs
-"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,8 +12,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS: permite que el frontend (Vue, normalmente en :5173 o :8080) consuma
-# la API. En producción conviene restringir allow_origins a los dominios reales.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
