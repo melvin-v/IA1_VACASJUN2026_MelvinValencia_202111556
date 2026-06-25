@@ -4,6 +4,10 @@
 
 ---
 
+![Texto alternativo](img/uno.png)
+![Texto alternativo](img/dos.png)
+![Texto alternativo](img/tres.png)
+
 ## 1. ¿Qué es RoboMaze?
 
 RoboMaze es una aplicación web que te permite construir laberintos y observar
